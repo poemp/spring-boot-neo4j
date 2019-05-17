@@ -28,7 +28,7 @@ public class Neo4jServiceImpl  implements Neo4jService {
     
     
     private Boolean NodeExist(String uuid) {
-        return userEno4jRepostory.findById(uuid).get() != null;
+        return userEno4jRepostory.findById(uuid).isPresent();
     }
 
 
@@ -301,4 +301,26 @@ public class Neo4jServiceImpl  implements Neo4jService {
         JSONArray array = JSONArray.parseArray(JSON.toJSONString(tmp));
         return array;
     }
+
+    @Override
+    public void AddReOut(String srcuuid, String desuuid) {
+        userEno4jRepostory.AddReOut( srcuuid,desuuid );
+    }
+
+    @Override
+    public void AddReIn(String srcuuid, String desuuid) {
+        userEno4jRepostory.AddReIn( srcuuid,desuuid );
+    }
+
+    @Override
+    public void deletAll() {
+        userEno4jRepostory.deletAll();
+    }
+
+    @Override
+    public List<User> findAllNodeByType(String type) {
+        return  userEno4jRepostory.findAllNodeByType(type);
+    }
+
+
 }

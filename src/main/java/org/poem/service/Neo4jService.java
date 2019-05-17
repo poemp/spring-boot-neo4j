@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.poem.neo4j.user.entity.User;
 
+import java.util.List;
+
 /**
  * @author Administrator
  */
@@ -149,4 +151,23 @@ public interface Neo4jService {
      */
     JSONArray FindAllNode(String uuid) throws Exception;
 
+
+    /**
+     *
+     * @param srcuuid
+     * @param desuuid
+     */
+    void AddReOut(String srcuuid,  String desuuid);
+
+    /**
+     *
+     * @param srcuuid
+     * @param desuuid
+     */
+    void AddReIn(String srcuuid,  String desuuid);
+
+
+    void deletAll();
+
+    List<User> findAllNodeByType(String type);
 }

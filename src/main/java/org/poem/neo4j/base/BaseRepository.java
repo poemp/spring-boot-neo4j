@@ -48,7 +48,21 @@ public interface BaseRepository<T extends Entity, ID extends Serializable> exten
 
     /************************************查询********************************/
 
+    /**
+     *
+     * @param srcuuid
+     * @param desuuid
+     */
+    @Query("match(m),(n) where m.uuid={srcuuid} and n.uuid={desuuid} create (m)-[:In]->(n)")
+    void AddReIn(@Param("srcuuid") String srcuuid, @Param("desuuid") String desuuid);
 
+    /**
+     * 添加使用关系
+     * @param srcuuid
+     * @param desuuid
+     */
+    @Query("match(m),(n) where m.uuid={srcuuid} and n.uuid={desuuid} create (m)-[:Out]->(n)")
+    void AddReOut(@Param("srcuuid") String srcuuid, @Param("desuuid") String desuuid);
     /**
      * 查询uuid 下的属于关系 子节点
      *
@@ -174,4 +188,21 @@ public interface BaseRepository<T extends Entity, ID extends Serializable> exten
      */
     @Query("MATCH(from)-[*1..5]-(to) WHERE from.uuid={uuid} RETURN to")
     List<T> findNodeAll(@Param("uuid") String uuid);
+
+
+    /**
+     * 删除所有节点
+     *
+     */
+    @Query("MATCH(from)-[r]-(to) DELETE from,r, to")
+    void deletAll();
+
+    /**
+     * 根据类型查询所有顶级节点
+     * @param type
+     * @return
+     */
+    @Query("match(from)-[*1..5]-(to) where from.type={type} return from, to")
+    List<T> findAllNodeByType(@Param("type") String type);
+
 }
