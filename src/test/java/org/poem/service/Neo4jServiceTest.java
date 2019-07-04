@@ -5,6 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.poem.SnowFlake;
+import org.poem.neo4j.user.BaseEno4jRepostory;
+import org.poem.neo4j.user.UserEno4jRepostory;
+import org.poem.neo4j.user.entity.Base;
 import org.poem.neo4j.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +23,9 @@ public class Neo4jServiceTest {
 
     @Autowired
     private Neo4jService neo4jService;
+
+    @Autowired
+    private BaseEno4jRepostory baserepo;
 
     @Test
     public void getAll() {
@@ -44,7 +51,7 @@ public class Neo4jServiceTest {
 
     @Test
     public void ttt() throws Exception {
-        this.neo4jService.deletAll();
+//        this.neo4jService.deletAll();
         for (int i = 0; i < 100; i++) {
             User user = new User();
             user.setName( "OUT-DATABASE-" + i );
@@ -193,8 +200,66 @@ public class Neo4jServiceTest {
         JSONArray jsonArray = this.neo4jService.FindAllRoot();
         System.err.println( jsonArray );
     }
+    @Test
+    public void de(){
+        baserepo.deletAll();
+        neo4jService.deletAll();
+    }
 
-    public void FindAllNode() throws Exception {
-        String uuid;
+
+    @Test
+    public void createRelation(){
+        de();
+        Long start = -1L;
+        for (int ii = 0; ii < 5; ii++) {
+            Base rDataBase = new Base();
+            Long rDataBaseId = SnowFlake.genLongId();
+            rDataBase.setParUuid( start+"" );
+            rDataBase.setUuid(rDataBaseId+""  );
+            rDataBase.setId(rDataBaseId+""  );
+            rDataBase.setName( "D_"+ rDataBase.getUuid() );
+            rDataBase.setType( "DATASOURCE" );
+            baserepo.save(rDataBase);
+
+            int vlue = 1 + (int)(Math.random() * 4);
+            for (int y = 0; y < vlue; y++) {
+                int v = 1 + (int)(Math.random() * 4);
+                Long hDataBaseId = SnowFlake.genLongId();
+                for (int i = 0; i < v; i++) {
+                    Base rTable = new Base();
+                    Long rrTableId = SnowFlake.genLongId();
+                    rTable.setParUuid( String.valueOf( rDataBaseId ) );
+                    rTable.setUuid(rrTableId+""  );
+                    rTable.setId(rrTableId+""  );
+                    rTable.setName( "T_"+ rTable.getUuid() );
+                    rTable.setType( "SOURCETABLE" );
+                    baserepo.save(rTable);
+                    baserepo.AddReHave(String.valueOf( rDataBaseId ),String.valueOf( rrTableId ));
+
+                    Base hTable = new Base();
+                    Long hTableId = SnowFlake.genLongId() ;
+                    hTable.setParUuid( String.valueOf( rrTableId ) );
+                    hTable.setUuid(hTableId +"" );
+                    hTable.setId(hTableId +"" );
+                    hTable.setName( "T_"+ hTable.getUuid() );
+                    hTable.setType( "RESOURCESTABLE" );
+                    baserepo.save(hTable);
+                    baserepo.AddReOut(String.valueOf( rrTableId ),String.valueOf( hTableId ));
+
+                    Base hDataBase = new Base();
+
+                    hDataBase.setParUuid( String.valueOf( hTableId ) );
+                    hDataBase.setUuid(hDataBaseId +"" );
+                    hDataBase.setId(hDataBaseId +"" );
+                    hDataBase.setName( "D_" + hDataBase.getUuid() );
+                    hDataBase.setType( "DATASOURCE" );
+                    if (baserepo.findByUuid(hDataBase.getUuid()).isEmpty()){
+                        baserepo.save(hDataBase);
+                    }
+                    baserepo.AddReIn(String.valueOf( hTableId ),String.valueOf( hDataBaseId ));
+                }
+            }
+            start = rDataBaseId;
+        }
     }
 }
