@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableNeo4jRepositories(basePackages = "org.poem")
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "spring.data.neo4j")
-public class Neo4jConfig {
+public class Neo4jConfig{
 
     private static final Logger logger = LoggerFactory.getLogger(Neo4jConfig.class);
     /**
@@ -48,7 +48,7 @@ public class Neo4jConfig {
                 "\n\t\t [password]:" + password
         );
         return  new org.neo4j.ogm.config.Configuration.Builder()
-                .uri(uri)
+                .uri(uri).verifyConnection(true)
                 .credentials(username, password)
                 .build();
     }
